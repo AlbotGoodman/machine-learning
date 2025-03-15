@@ -22,3 +22,9 @@ Features:
 12. Presence or absence of cardiovascular disease | Target Variable | cardio | binary |  
 
 All of the dataset values were collected at the moment of medical examination.  
+
+
+
+
+
+
