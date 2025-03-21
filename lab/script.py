@@ -11,7 +11,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 
-class Processing(self):
+class Processing():
     
     def __init__(self):
         pass
@@ -39,7 +39,7 @@ class Processing(self):
         pass
 
 
-class Visualisation(self):
+class Visualisation():
 
     def __init__(self):
         pass
@@ -58,7 +58,7 @@ class Visualisation(self):
         pass
 
 
-class Models(self):
+class Models():
 
     def __init__(self):
         """Should param_grids be here?"""
