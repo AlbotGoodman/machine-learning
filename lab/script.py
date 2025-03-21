@@ -233,37 +233,37 @@ class Modelling():
         pass
 
 
-    def create_subsets(self):
+    def create_subsets(self, X, y):
         """df_a och df_b"""
         pass
 
 
-    def data_trimmer(self):
+    def data_trimmer(self, X, y):
         pass
 
 
-    def split_data(self):
+    def split_data(self, X, y):
         pass
 
 
-    def scale_data(self):
+    def scale_data(self, X, y):
         pass
 
 
-    def tuning(self):
+    def tuning(self, X, y):
         pass
 
 
-    def prediction(self):
+    def prediction(self, X, y):
         """Not sure I want/need this."""
         pass
 
 
-    def ensemble(self):
+    def ensemble(self, X, y):
         pass
 
 
-    def evaluation(self):
+    def evaluation(self, X, y):
         pass
 
 
