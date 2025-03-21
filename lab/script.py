@@ -228,35 +228,136 @@ class Visualisation():
 class Modelling():
 
 
-    def __init__(self):
-        """Should param_grids be here?"""
-        pass
+    def __init__(self, df):
+        self._X = df.drop(columns=["cardio"])
+        self._y = df["cardio"]
+        self._X_train = None
+        self._X_val = None
+        self._X_test = None
+        self._y_train = None
+        self._y_val = None
+        self._y_test = None
+        self._scores = {}
+        self._param_grids = {
+            "log_reg": {
+                "model": LogisticRegression(),
+                "params": {
+                    "C": [
+                        0.001,
+                        0.01,
+                        0.1,
+                        1,
+                        10,
+                        100,
+                        1000
+                    ],
+                    "penalty": ["l1", "l2", "elasticnet", None], 
+                    "solver": ["saga", "liblinear", "lbfgs"], 
+                    "max_iter": [10000],
+                }
+            },
+            "sgd": {
+                "model": SGDClassifier(),
+                "params": {
+                    "alpha": [
+                        0.001, 
+                        0.01, 
+                        0.1, 
+                        1,
+                        10,
+                        100,
+                        1000
+                    ],
+                    "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
+                    "penalty": ["l1", "l2", "elasticnet", None],
+                    "learning_rate": ["optimal", "invscaling", "adaptive"],
+                    "max_iter": [10000],
+                }
+            },
+            "svm": {
+                "model": SVC(),
+                "params": {
+                    "C": [3, 6, 9, 20],
+                    "gamma": ["scale", "auto"],
+                    "degree": [2, 3],
+                    "kernel": ["sigmoid", "poly", "rbf"],
+                }
+            },
+            "knn": {
+                "model": KNeighborsClassifier(),
+                "params": {
+                    "n_neighbors": [4, 5, 6, 10],
+                    "weights": ["uniform", "distance"], 
+                    "algorithm": ["auto", "kd_tree", "ball_tree", "brute"], 
+                    "leaf_size": [1, 2],
+                    "p": [1, 2],
+                }
+            },
+            "rforest": {
+                "model": RandomForestClassifier(),
+                "params": {
+                    "n_estimators": [8, 12, 20, 30], 
+                    "criterion": ["gini", "entropy"],
+                    "max_depth": [None, 2, 10], 
+                    "min_samples_split": [20, 25, 30],
+                }
+            }
+        }
 
 
-    def create_subsets(self, X, y):
-        """df_a och df_b"""
-        pass
+    @property
+    def scores(self):
+        return self._scores
+    
+    
+    def split_data(self):
+        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=1123)
+        self._X_val, self._X_test, self._y_val, self._y_test = train_test_split(self._X_test, self._y_test, test_size=0.5, random_state=1123)
+        return self
+    
+
+    def _standardiser(self):
+        scaler = StandardScaler()
+        self._X_train = scaler.fit_transform(self._X_train)
+        self._X_val = scaler.transform(self._X_val)
+        self._X_test = scaler.transform(self._X_test)
+        return self
+    
+
+    def _normaliser(self):
+        scaler = MinMaxScaler()
+        self._X_train = scaler.fit_transform(self._X_train)
+        self._X_val = scaler.transform(self._X_val)
+        self._X_test = scaler.transform(self._X_test)
+        return self
 
 
-    def data_trimmer(self, X, y):
-        pass
+    def scale_data(self):
+        self._standardiser()
+        self._normaliser()
+        return self
 
 
-    def split_data(self, X, y):
-        pass
-
-
-    def scale_data(self, X, y):
-        pass
-
-
-    def tuning(self, X, y):
-        pass
-
-
-    def prediction(self, X, y):
-        """Not sure I want/need this."""
-        pass
+    def tuning(self):
+        for key, values in self._param_grids.items():
+            print(f"\nTraining {key} ...")
+            model = values["model"]
+            params = values["params"]
+            grid_search = GridSearchCV(
+                estimator=model,
+                param_grid=params,
+                cv=5,
+                scoring="recall",
+                verbose=2, # remove before final run
+                n_jobs=-1
+            )
+            grid_search.fit(self._X_train, self._y_train)
+            self._scores[key] = {
+                "best_params": grid_search.best_params_,
+                "train_score": grid_search.score(self._X_train, self._y_train),
+                "val_score": grid_search.score(self._X_val, self._y_val)
+            }
+        return self
 
 
     def ensemble(self, X, y):
