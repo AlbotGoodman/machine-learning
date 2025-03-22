@@ -1,6 +1,6 @@
 model,best_params,train_score,val_score
-SGDClassifier(),"{'alpha': 1, 'learning_rate': 'optimal', 'loss': 'perceptron', 'max_iter': 10000, 'penalty': 'l2'}",0.7860066989207294,0.7879799666110183
 LogisticRegression(),"{'C': 0.001, 'max_iter': 10000, 'penalty': 'l2', 'solver': 'liblinear'}",0.7104577595831782,0.7145242070116862
-RandomForestClassifier(),"{'criterion': 'entropy', 'max_depth': None, 'min_samples_split': 30, 'n_estimators': 20}",0.7718645329363603,0.6844741235392321
+RandomForestClassifier(),"{'criterion': 'gini', 'max_depth': None, 'min_samples_split': 20, 'n_estimators': 12}",0.7793077781912914,0.674457429048414
 SVC(),"{'C': 20, 'degree': 2, 'gamma': 'scale', 'kernel': 'poly'}",0.6706363974692966,0.662771285475793
 KNeighborsClassifier(),"{'algorithm': 'auto', 'leaf_size': 1, 'n_neighbors': 10, 'p': 2, 'weights': 'distance'}",0.9996278377372534,0.66110183639399
+SGDClassifier(),"{'alpha': 10, 'learning_rate': 'optimal', 'loss': 'hinge', 'max_iter': 10000, 'penalty': 'l1'}",0.0,0.0
