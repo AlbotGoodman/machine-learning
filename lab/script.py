@@ -5,10 +5,10 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.linear_model import LogisticRegression, SGDClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
 
 
 class Processing():
@@ -238,6 +238,7 @@ class Modelling():
         self._y_val = None
         self._y_test = None
         self._scores = {}
+        self._table = None
         self._param_grids = {
             "log_reg": {
                 "model": LogisticRegression(),
@@ -304,10 +305,10 @@ class Modelling():
             }
         }
 
-
+    
     @property
-    def scores(self):
-        return self._scores
+    def table(self):
+        return self._table
     
     
     def split_data(self):
@@ -316,19 +317,28 @@ class Modelling():
         return self
     
 
-    def _standardiser(self):
-        scaler = StandardScaler()
-        self._X_train = scaler.fit_transform(self._X_train)
-        self._X_val = scaler.transform(self._X_val)
-        self._X_test = scaler.transform(self._X_test)
+    def voting_split(self):
+        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=1123)
+        self._standardiser(val_set=False)
+        self._normaliser(val_set=False)
         return self
     
 
-    def _normaliser(self):
+    def _standardiser(self, val_set=True):
+        scaler = StandardScaler()
+        self._X_train = scaler.fit_transform(self._X_train)
+        self._X_test = scaler.transform(self._X_test)
+        if val_set == True:
+            self._X_val = scaler.transform(self._X_val)
+        return self
+    
+
+    def _normaliser(self, val_set=True):
         scaler = MinMaxScaler()
         self._X_train = scaler.fit_transform(self._X_train)
-        self._X_val = scaler.transform(self._X_val)
         self._X_test = scaler.transform(self._X_test)
+        if val_set == True:
+            self._X_val = scaler.transform(self._X_val)
         return self
 
 
@@ -353,19 +363,44 @@ class Modelling():
             )
             grid_search.fit(self._X_train, self._y_train)
             self._scores[key] = {
+                "model": model,
                 "best_params": grid_search.best_params_,
                 "train_score": grid_search.score(self._X_train, self._y_train),
                 "val_score": grid_search.score(self._X_val, self._y_val)
             }
         return self
+    
+
+    def scoreboard(self, filename="scores"):
+        self._table = pd.DataFrame(self._scores).T
+        self._table.sort_values(by="val_score", ascending=False, inplace=True)
+        self._table.reset_index(drop=True, inplace=True)
+        self._table.to_csv(f"scores/{filename}.csv", index=False)
+        return self
 
 
-    def ensemble(self, X, y):
-        pass
+    def voting(self):
+        names = []
+        models = self._table["model"].to_list()
+        for model in models:
+            names.append(f"{model}")
+        params = self._table["best_params"].to_list()
+        vote_clf_list = []
+        for name, model, param in zip(names, models, params):
+            # The addition of **params was from Copilot by highlighting the loop and prompting:
+            # "Create a list for the voting classifier where the params are assigned as well."
+            model.set_params(**param)
+            vote_clf_list.append((name, model))
+        vote_clf = VotingClassifier(estimators=vote_clf_list, voting="hard")
+        return vote_clf
 
 
-    def evaluation(self, X, y):
-        pass
+    def evaluation(self, model):
+        model.fit(self._X_train, self._y_train)
+        y_pred = model.predict(self._X_test)
+        print(classification_report(self._y_test, y_pred))
+        cm = confusion_matrix(self._y_test, y_pred)
+        ConfusionMatrixDisplay(cm).plot()
 
 
 def main():

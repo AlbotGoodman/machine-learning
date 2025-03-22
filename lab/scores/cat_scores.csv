@@ -1,0 +1,6 @@
+model,best_params,train_score,val_score
+RandomForestClassifier(),"{'criterion': 'entropy', 'max_depth': None, 'min_samples_split': 25, 'n_estimators': 12}",0.7685150725716412,0.6811352253756261
+SVC(),"{'C': 9, 'degree': 2, 'gamma': 'scale', 'kernel': 'rbf'}",0.6639374767398586,0.6460767946577629
+LogisticRegression(),"{'C': 0.001, 'max_iter': 10000, 'penalty': None, 'solver': 'saga'}",0.6129512467435801,0.6310517529215359
+KNeighborsClassifier(),"{'algorithm': 'kd_tree', 'leaf_size': 1, 'n_neighbors': 5, 'p': 1, 'weights': 'uniform'}",0.7528842575362859,0.6260434056761269
+SGDClassifier(),"{'alpha': 1000, 'learning_rate': 'optimal', 'loss': 'modified_huber', 'max_iter': 10000, 'penalty': 'l2'}",0.0,0.0
