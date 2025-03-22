@@ -405,8 +405,40 @@ class Modelling():
 
 def main():
     """Run it all."""
-    pass
-
+    pro = Processing("../data/cardio.csv")
+    df = pro.df
+    Visualisation.EDA(df)
+    pro.add_bmi()
+    df = pro.df
+    df = df[
+        (df["ap_hi"] >= 0) & (df["ap_hi"] <= 250) &
+        (df["ap_lo"] >= 0) & (df["ap_lo"] <= 200)
+    ]
+    Visualisation.boxplot_comparison(df)
+    pro.clear_outliers(["ap_lo", "ap_hi"])
+    df = pro.df
+    Visualisation.boxplot_comparison(df)
+    pro.add_blood_pressure()
+    df = pro.df
+    Visualisation.risk_factors(df)
+    Visualisation.correlation_matrix(df)
+    df_num = df.copy().drop(columns=["height", "weight", "bmi_cat", "ap_cat"])
+    df_cat = df.copy().drop(columns=["height", "weight", "bmi", "ap_hi", "ap_lo"])
+    df_num = pd.get_dummies(df_num, columns=["gender"])
+    df_cat = pd.get_dummies(df_cat, columns=["gender", "bmi_cat", "ap_cat"])
+    model_num = Modelling(df_num)
+    model_cat = Modelling(df_cat)
+    model_num.split_data().scale_data().tuning()
+    model_cat.split_data().scale_data().tuning()
+    num_scores = model_num.scoreboard("num_scores")
+    cat_scores = model_cat.scoreboard("cat_scores")
+    print(num_scores.table)
+    print(cat_scores.table)
+    ensemble = Modelling(df_num)
+    ensemble.voting_split()
+    ensemble._table = num_scores.table.copy()
+    vote_clf = ensemble.voting()
+    ensemble.evaluation(vote_clf)
 
 if __name__ == "__main__":
     temp = main()
