@@ -29,7 +29,6 @@ class Processing():
         self._df["bmi"] = self._df["bmi"].round(1)
         self._df = self._df[["age", "gender", "height", "weight", "bmi", "ap_hi", "ap_lo", "cholesterol", "gluc", "smoke", "alco", "active", "cardio"]]
         self._df = self._df[(self._df["bmi"] > 16) & (self._df["bmi"] <= 40)]
-        # TODO: perhaps change the labels below to numbers instead
         bmi_labels = ["underweight", "normal", "overweight", "obese cl1", "obese cl2", "obese cl3"]
         self._df["bmi_cat"] = pd.cut(self._df["bmi"], bins=[16, 18.5, 25, 30, 35, 40, float("inf")], labels=bmi_labels)
         self._df = self._df[["age", "gender", "height", "weight", "bmi", "bmi_cat", "ap_hi", "ap_lo", "cholesterol", "gluc", "smoke", "alco", "active", "cardio"]]
@@ -145,7 +144,6 @@ class Visualisation():
 
 
     def risk_factors(df):
-        """Haven't tried this yet."""
         rows = 2
         cols = 3
         fig, axes = plt.subplots(rows, cols, figsize=(17, 12))
@@ -247,7 +245,7 @@ class Modelling():
                         0.001,
                         0.01,
                         0.1,
-                        1,
+                        1, # default
                         10,
                         100,
                         1000
@@ -261,13 +259,11 @@ class Modelling():
                 "model": SGDClassifier(),
                 "params": {
                     "alpha": [
+                        0.0000001,
+                        0.00001,
+                        0.0001, # default
                         0.001, 
-                        0.01, 
-                        0.1, 
-                        1,
-                        10,
-                        100,
-                        1000
+                        0.01,
                     ],
                     "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
                     "penalty": ["l1", "l2", "elasticnet", None],
@@ -278,29 +274,29 @@ class Modelling():
             "svm": {
                 "model": SVC(),
                 "params": {
-                    "C": [3, 6, 9, 20],
+                    "C": [0.1, 1, 10],
                     "gamma": ["scale", "auto"],
                     "degree": [2, 3],
                     "kernel": ["sigmoid", "poly", "rbf"],
+                    "cache_size": [3000],
                 }
             },
             "knn": {
                 "model": KNeighborsClassifier(),
                 "params": {
-                    "n_neighbors": [4, 5, 6, 10],
+                    "n_neighbors": [3, 5, 9],
                     "weights": ["uniform", "distance"], 
                     "algorithm": ["auto", "kd_tree", "ball_tree", "brute"], 
-                    "leaf_size": [1, 2],
                     "p": [1, 2],
                 }
             },
             "rforest": {
                 "model": RandomForestClassifier(),
                 "params": {
-                    "n_estimators": [8, 12, 20, 30], 
+                    "n_estimators": [50, 100, 200], 
                     "criterion": ["gini", "entropy"],
                     "max_depth": [None, 2, 10], 
-                    "min_samples_split": [20, 25, 30],
+                    "min_samples_split": [2, 15, 30],
                 }
             }
         }
