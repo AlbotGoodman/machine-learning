@@ -1,6 +1,6 @@
 model,best_params,train_score,val_score
-SGDClassifier(),"{'alpha': 1, 'learning_rate': 'optimal', 'loss': 'hinge', 'max_iter': 10000, 'penalty': 'elasticnet'}",1.0,1.0
-RandomForestClassifier(),"{'criterion': 'entropy', 'max_depth': None, 'min_samples_split': 20, 'n_estimators': 8}",0.7856345366579829,0.667779632721202
-SVC(),"{'C': 9, 'degree': 2, 'gamma': 'scale', 'kernel': 'rbf'}",0.6639374767398586,0.6460767946577629
+SGDClassifier(),"{'alpha': 1e-07, 'learning_rate': 'optimal', 'loss': 'perceptron', 'max_iter': 10000, 'penalty': 'l1'}",0.857089691105322,0.8814691151919867
+RandomForestClassifier(),"{'criterion': 'gini', 'max_depth': None, 'min_samples_split': 15, 'n_estimators': 50}",0.8020096762188315,0.676126878130217
+KNeighborsClassifier(),"{'algorithm': 'kd_tree', 'n_neighbors': 9, 'p': 2, 'weights': 'uniform'}",0.71566803126163,0.66110183639399
+SVC(),"{'C': 10, 'cache_size': 3000, 'degree': 2, 'gamma': 'scale', 'kernel': 'rbf'}",0.6676590993673241,0.6494156928213689
 LogisticRegression(),"{'C': 0.001, 'max_iter': 10000, 'penalty': None, 'solver': 'saga'}",0.6129512467435801,0.6310517529215359
-KNeighborsClassifier(),"{'algorithm': 'kd_tree', 'leaf_size': 1, 'n_neighbors': 5, 'p': 1, 'weights': 'uniform'}",0.7528842575362859,0.6260434056761269
