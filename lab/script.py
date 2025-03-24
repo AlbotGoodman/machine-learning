@@ -238,47 +238,14 @@ class Modelling():
         self._scores = {}
         self._table = None
         self._param_grids = {
-            "log_reg": {
-                "model": LogisticRegression(),
-                "params": {
-                    "C": [
-                        0.001,
-                        0.01,
-                        0.1,
-                        1, # default
-                        10,
-                        100,
-                        1000
-                    ],
-                    "penalty": ["l1", "l2", "elasticnet", None], 
-                    "solver": ["saga", "liblinear", "lbfgs"], 
-                    "max_iter": [10000],
-                }
-            },
-            "sgd": {
-                "model": SGDClassifier(),
-                "params": {
-                    "alpha": [
-                        0.0000001,
-                        0.00001,
-                        0.0001, # default
-                        0.001, 
-                        0.01,
-                    ],
-                    "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
-                    "penalty": ["l1", "l2", "elasticnet", None],
-                    "learning_rate": ["optimal", "invscaling", "adaptive"],
-                    "max_iter": [10000],
-                }
-            },
             "svm": {
                 "model": SVC(),
                 "params": {
                     "C": [0.1, 1, 10],
                     "gamma": ["scale", "auto"],
-                    "degree": [2, 3],
+                    "degree": [2],
                     "kernel": ["sigmoid", "poly", "rbf"],
-                    "cache_size": [3000],
+                    "cache_size": [1000],
                 }
             },
             "knn": {
@@ -298,7 +265,40 @@ class Modelling():
                     "max_depth": [None, 2, 10], 
                     "min_samples_split": [2, 15, 30],
                 }
-            }
+            },
+            "sgd": {
+                "model": SGDClassifier(),
+                "params": {
+                    "alpha": [
+                        0.0000001,
+                        0.00001,
+                        0.0001, # default
+                        0.001, 
+                        0.01,
+                    ],
+                    "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
+                    "penalty": ["l1", "l2", "elasticnet", None],
+                    "learning_rate": ["optimal", "invscaling", "adaptive"],
+                    "max_iter": [10000],
+                }
+            },
+            "log_reg": {
+                "model": LogisticRegression(),
+                "params": {
+                    "C": [
+                        0.001,
+                        0.01,
+                        0.1,
+                        1, # default
+                        10,
+                        100,
+                        1000
+                    ],
+                    "penalty": ["l1", "l2", "elasticnet", None], 
+                    "solver": ["saga", "liblinear", "lbfgs"], 
+                    "max_iter": [10000],
+                }
+            },
         }
 
     
