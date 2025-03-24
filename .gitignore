@@ -132,3 +132,5 @@ dmypy.json
 # Custom
 test*
 .vscode
+movielens
+geeks4geeks
