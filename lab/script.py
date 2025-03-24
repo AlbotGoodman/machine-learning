@@ -12,6 +12,7 @@ from sklearn.metrics import classification_report, confusion_matrix, ConfusionMa
 
 
 class Processing():
+    """Handles the majority of the data processing tasks."""
     
 
     def __init__(self, path):
@@ -21,10 +22,17 @@ class Processing():
 
     @property
     def df(self):
+        """Returns the dataframe for use in the report."""
         return self._df
 
 
     def add_bmi(self):
+        """
+        Specifies BMI ranges.
+        Calculates BMI from height and weight. 
+        Adds a new column with the BMI values.
+        Categorises the BMI values into six categories.
+        """
         self._df["bmi"] = self._df["weight"] / (self._df["height"] / 100) ** 2
         self._df["bmi"] = self._df["bmi"].round(1)
         self._df = self._df[["age", "gender", "height", "weight", "bmi", "ap_hi", "ap_lo", "cholesterol", "gluc", "smoke", "alco", "active", "cardio"]]
@@ -36,6 +44,7 @@ class Processing():
     
 
     def clear_outliers(self, cols): # cols can a single value or a list
+        """Uses the IQR method to clear outliers statistically."""
         for col in cols:
             if col == "ap_lo":
                 self._df = self._df[(self._df[col] >= 0) & (self._df[col] <= 200)]
@@ -51,8 +60,13 @@ class Processing():
 
 
     def add_blood_pressure(self):
+        """
+        Specifies blood pressure ranges.
+        Categorises the blood pressure values into six categories.
+        Adds a new column with the blood pressure categories.
+        """
         bp_conditions = [
-            (self._df["ap_hi"] <= 90) | (self._df["ap_lo"] <= 60), # with outlier I need | instead of & otherwise I get unknown values
+            (self._df["ap_hi"] <= 90) | (self._df["ap_lo"] <= 60), # if outliers have not been cleared, use "|" instead of "&" as to avoid unknown values
             ((self._df["ap_hi"] >= 90) & (self._df["ap_hi"] < 120)) & (self._df["ap_lo"] < 80),
             ((self._df["ap_hi"] >= 120) & (self._df["ap_hi"] < 130)) & (self._df["ap_lo"] < 80),
             ((self._df["ap_hi"] >= 130) & (self._df["ap_hi"] < 140)) | ((self._df["ap_lo"] >= 80) & (self._df["ap_lo"] < 90)),
@@ -73,13 +87,18 @@ class Processing():
 
 
 class Visualisation():
+    """Handles the majority of the visualisation tasks."""
 
 
     def __init__(self):
         pass
 
 
-    def EDA(df):
+    def EDA(df): 
+        """
+        Displays subplots of the dataset. 
+        Each plot shows a specific distribution or relationship.
+        """
         rows = 2
         cols = 4
         fig, axes = plt.subplots(rows, cols, figsize=(22, 12))
@@ -100,7 +119,7 @@ class Visualisation():
         titles = [
             "Cardiovascular Disease Distribution\n",
             "Cholesterol Distribution\n",
-            "Age Distribution\n",
+            "Age Distribution\n", # TODO: perhaps we can do without hue cardio here
             "Smoking Distribution\n",
             "Weight Distribution\n",
             "Height Distribution\n",
@@ -144,6 +163,10 @@ class Visualisation():
 
 
     def risk_factors(df):
+        """
+        Displays subplots of the dataset.
+        Each plot shows trends in the data for elevated risk of cardiovascular disease.
+        """
         rows = 2
         cols = 3
         fig, axes = plt.subplots(rows, cols, figsize=(17, 12))
@@ -198,8 +221,12 @@ class Visualisation():
 
 
     def correlation_matrix(df):
-        df_corr = df.copy()
-        bmi_cat_dict = {
+        """
+        Labels the BMI and blood pressure categories with numeric values.
+        Displays a heatmap of the correlation between the features.
+        """
+        df_corr = df.copy() 
+        bmi_cat_dict = {    
             "underweight": 1,
             "normal": 2,
             "overweight": 3,
@@ -224,6 +251,12 @@ class Visualisation():
 
 
 class Modelling():
+    """
+    Handles the tuning and evaluation of different models.
+    Hyperparameter tuning is done using GridSearchCV.
+    The parameters are set and stored on instance creation.
+    The same parameters and values are used with the voting classifier.
+    """
 
 
     def __init__(self, df):
@@ -304,23 +337,19 @@ class Modelling():
     
     @property
     def table(self):
+        """Returns a dataframe of training and validation scores."""
         return self._table
     
     
     def split_data(self):
+        """Splits the data into training, validation, and test sets."""
         self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=1123)
         self._X_val, self._X_test, self._y_val, self._y_test = train_test_split(self._X_test, self._y_test, test_size=0.5, random_state=1123)
         return self
     
 
-    def voting_split(self):
-        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=1123)
-        self._standardiser(val_set=False)
-        self._normaliser(val_set=False)
-        return self
-    
-
     def _standardiser(self, val_set=True):
+        """Helper function that standardises the data."""
         scaler = StandardScaler()
         self._X_train = scaler.fit_transform(self._X_train)
         self._X_test = scaler.transform(self._X_test)
@@ -330,6 +359,7 @@ class Modelling():
     
 
     def _normaliser(self, val_set=True):
+        """Helper function that normalises the data."""
         scaler = MinMaxScaler()
         self._X_train = scaler.fit_transform(self._X_train)
         self._X_test = scaler.transform(self._X_test)
@@ -339,12 +369,25 @@ class Modelling():
 
 
     def scale_data(self):
+        """First standardises then normalises the data."""
         self._standardiser()
         self._normaliser()
+        return self
+    
+
+    def voting_split(self):
+        """
+        Splits the data into training and test sets.
+        Standardises and normalises the data.
+        """
+        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=1123)
+        self._standardiser(val_set=False)
+        self._normaliser(val_set=False)
         return self
 
 
     def tuning(self):
+        """Hyperparameter optimisation using GridSearchCV."""
         for key, values in self._param_grids.items():
             print(f"\nTraining {key} ...")
             model = values["model"]
@@ -354,7 +397,7 @@ class Modelling():
                 param_grid=params,
                 cv=5,
                 scoring="recall",
-                verbose=2, # remove before final run
+                verbose=1,
                 n_jobs=-1
             )
             grid_search.fit(self._X_train, self._y_train)
@@ -364,10 +407,15 @@ class Modelling():
                 "train_score": grid_search.score(self._X_train, self._y_train),
                 "val_score": grid_search.score(self._X_val, self._y_val)
             }
+            print(f"{key} training complete.")
         return self
     
 
     def scoreboard(self, filename="scores"):
+        """
+        Creates a dataframe of the training and validation scores.
+        Saves the dataframe as a CSV file for offline use without the need to run all again.
+        """
         self._table = pd.DataFrame(self._scores).T
         self._table.sort_values(by="val_score", ascending=False, inplace=True)
         self._table.reset_index(drop=True, inplace=True)
@@ -376,6 +424,7 @@ class Modelling():
 
 
     def voting(self):
+        """Creates a voting classifier with all models using optimised parameter values."""
         names = []
         models = self._table["model"].to_list()
         for model in models:
@@ -392,6 +441,10 @@ class Modelling():
 
 
     def evaluation(self, model):
+        """
+        Prints a classification report.
+        Plots a confusion matrix of the ensemble model.
+        """
         model.fit(self._X_train, self._y_train)
         y_pred = model.predict(self._X_test)
         print(classification_report(self._y_test, y_pred))
@@ -400,7 +453,7 @@ class Modelling():
 
 
 def main():
-    """Run it all."""
+    """Run it all in sequence."""
     pro = Processing("../data/cardio.csv")
     df = pro.df
     Visualisation.EDA(df)
@@ -437,4 +490,4 @@ def main():
     ensemble.evaluation(vote_clf)
 
 if __name__ == "__main__":
-    temp = main()
+    main()
