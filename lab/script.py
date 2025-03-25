@@ -260,6 +260,7 @@ class Modelling():
 
 
     def __init__(self, df):
+        self._seed = 1123
         self._X = df.drop(columns=["cardio"])
         self._y = df["cardio"]
         self._X_train = None
@@ -297,6 +298,7 @@ class Modelling():
                     "criterion": ["gini", "entropy"],
                     "max_depth": [None, 2, 10], 
                     "min_samples_split": [2, 15, 30],
+                    "random_state": [self._seed],
                 }
             },
             "sgd": {
@@ -313,6 +315,7 @@ class Modelling():
                     "penalty": ["l1", "l2", "elasticnet", None],
                     "learning_rate": ["optimal", "invscaling", "adaptive"],
                     "max_iter": [10000],
+                    "random_state": [self._seed],
                 }
             },
             "log_reg": {
@@ -330,6 +333,7 @@ class Modelling():
                     "penalty": ["l1", "l2", "elasticnet", None], 
                     "solver": ["saga", "liblinear", "lbfgs"], 
                     "max_iter": [10000],
+                    "random_state": [self._seed],
                 }
             },
         }
@@ -343,8 +347,8 @@ class Modelling():
     
     def split_data(self):
         """Splits the data into training, validation, and test sets."""
-        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=1123)
-        self._X_val, self._X_test, self._y_val, self._y_test = train_test_split(self._X_test, self._y_test, test_size=0.5, random_state=1123)
+        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=self._seed)
+        self._X_val, self._X_test, self._y_val, self._y_test = train_test_split(self._X_test, self._y_test, test_size=0.5, random_state=self._seed)
         return self
     
 
@@ -380,7 +384,7 @@ class Modelling():
         Splits the data into training and test sets.
         Standardises and normalises the data.
         """
-        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=1123)
+        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=self._seed)
         self._standardiser(val_set=False)
         self._normaliser(val_set=False)
         return self
