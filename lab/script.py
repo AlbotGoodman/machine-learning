@@ -305,7 +305,7 @@ class Modelling():
                 "model": SGDClassifier(),
                 "params": {
                     "alpha": [
-                        0.0000001,
+                        0.000001,
                         0.00001,
                         0.0001, # default
                         0.001, 
@@ -314,8 +314,10 @@ class Modelling():
                     "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
                     "penalty": ["l1", "l2", "elasticnet", None],
                     "learning_rate": ["optimal", "invscaling", "adaptive"],
+                    "eta0": [0.01, 0.1, 1.0],
+                    "class_weight": ["balanced"],
                     "max_iter": [10000],
-                    "random_state": [self._seed],
+                    "random_state": [1123],
                 }
             },
             "log_reg": {
