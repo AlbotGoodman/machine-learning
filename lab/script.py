@@ -1,7 +1,10 @@
+import time
+import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.exceptions import FitFailedWarning
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.linear_model import LogisticRegression, SGDClassifier
@@ -9,6 +12,12 @@ from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, recall_score
+
+
+# Ignore warnings that doesn't affect the results
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", message=".*penalty.*")
+warnings.filterwarnings("ignore", category=FitFailedWarning)
 
 
 class Processing():
@@ -272,53 +281,53 @@ class Modelling():
         self._scores = {}
         self._table = None
         self._param_grids = {
-            "svm": {
-                "model": SVC(),
-                "params": {
-                    "C": [0.1, 1, 10],
-                    "gamma": ["scale", "auto"],
-                    "kernel": ["sigmoid", "rbf"],
-                    "cache_size": [1000], # NOTE: total RAM usage = cache × CPU_threads
-                }
-            },
-            "knn": {
-                "model": KNeighborsClassifier(),
-                "params": {
-                    "n_neighbors": [3, 5, 9],
-                    "weights": ["uniform", "distance"], 
-                    "algorithm": ["auto", "kd_tree", "ball_tree", "brute"], 
-                    "p": [1, 2],
-                }
-            },
-            "rforest": {
-                "model": RandomForestClassifier(),
-                "params": {
-                    "n_estimators": [50, 100, 200], 
-                    "criterion": ["gini", "entropy"],
-                    "max_depth": [None, 2, 10], 
-                    "min_samples_split": [2, 15, 30],
-                    "random_state": [self._seed],
-                }
-            },
-            "sgd": {
-                "model": SGDClassifier(),
-                "params": {
-                    "alpha": [
-                        0.000001,
-                        0.00001,
-                        0.0001, # default
-                        0.001, 
-                        0.01,
-                    ],
-                    "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
-                    "penalty": ["l1", "l2", "elasticnet", None],
-                    "learning_rate": ["optimal", "invscaling", "adaptive"],
-                    "eta0": [0.01, 0.1, 1.0],
-                    "class_weight": ["balanced"],
-                    "max_iter": [10000],
-                    "random_state": [1123],
-                }
-            },
+            # "svm": {
+            #     "model": SVC(),
+            #     "params": {
+            #         "C": [0.1, 1, 10],
+            #         "gamma": ["scale", "auto"],
+            #         "kernel": ["sigmoid", "rbf"],
+            #         "cache_size": [1000], # NOTE: total RAM usage = cache × CPU_threads
+            #     }
+            # },
+            # "knn": {
+            #     "model": KNeighborsClassifier(),
+            #     "params": {
+            #         "n_neighbors": [3, 5, 9],
+            #         "weights": ["uniform", "distance"], 
+            #         "algorithm": ["auto", "kd_tree", "ball_tree", "brute"], 
+            #         "p": [1, 2],
+            #     }
+            # },
+            # "rforest": {
+            #     "model": RandomForestClassifier(),
+            #     "params": {
+            #         "n_estimators": [50, 100, 200], 
+            #         "criterion": ["gini", "entropy"],
+            #         "max_depth": [None, 2, 10], 
+            #         "min_samples_split": [2, 15, 30],
+            #         "random_state": [self._seed],
+            #     }
+            # },
+            # "sgd": {
+            #     "model": SGDClassifier(),
+            #     "params": {
+            #         "alpha": [
+            #             0.000001,
+            #             0.00001,
+            #             0.0001, # default
+            #             0.001, 
+            #             0.01,
+            #         ],
+            #         "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
+            #         "penalty": ["l1", "l2", "elasticnet", None],
+            #         "learning_rate": ["optimal", "invscaling", "adaptive"],
+            #         "eta0": [0.01, 0.1, 1.0],
+            #         "class_weight": ["balanced"],
+            #         "max_iter": [10000],
+            #         "random_state": [1123],
+            #     }
+            # },
             "log_reg": {
                 "model": LogisticRegression(),
                 "params": {
@@ -394,6 +403,7 @@ class Modelling():
     def tuning(self):
         """Hyperparameter optimisation using GridSearchCV."""
         for key, values in self._param_grids.items():
+            start_time = time.time()
             print(f"\nTraining {key} ...")
             model = values["model"]
             params = values["params"]
@@ -402,7 +412,6 @@ class Modelling():
                 param_grid=params,
                 cv=5,
                 scoring="recall",
-                # verbose=1,
                 n_jobs=-1
             )
             grid_search.fit(self._X_train, self._y_train)
@@ -412,7 +421,9 @@ class Modelling():
                 "train_score": recall_score(self._y_train, grid_search.predict(self._X_train)),
                 "val_score": recall_score(self._y_val, grid_search.predict(self._X_val))
             }
-            print(f"... {key} training complete.")
+            print(f"... training complete.")
+            duration = time.time() - start_time
+            print(f"Duration: {duration // 60:.0f}m {duration % 60:.1f}s.\n")
         return self
     
 
