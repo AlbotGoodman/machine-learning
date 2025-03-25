@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, recall_score
 
 
 class Processing():
@@ -408,10 +408,10 @@ class Modelling():
             self._scores[key] = {
                 "model": model,
                 "best_params": grid_search.best_params_,
-                "train_score": grid_search.score(self._X_train, self._y_train),
-                "val_score": grid_search.score(self._X_val, self._y_val)
+                "train_score": recall_score(self._X_train, grid_search.predict(self._X_train)),
+                "val_score": recall_score(self._X_val, grid_search.predict(self._X_val))
             }
-            print(f"{key} training complete.")
+            print(f"... {key} training complete.")
         return self
     
 
