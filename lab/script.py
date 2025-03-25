@@ -277,9 +277,8 @@ class Modelling():
                 "params": {
                     "C": [0.1, 1, 10],
                     "gamma": ["scale", "auto"],
-                    "degree": [2],
-                    "kernel": ["sigmoid", "poly", "rbf"],
-                    "cache_size": [1000],
+                    "kernel": ["sigmoid", "rbf"],
+                    "cache_size": [1000], # NOTE: total RAM usage = cache × CPU_threads
                 }
             },
             "knn": {
@@ -403,15 +402,15 @@ class Modelling():
                 param_grid=params,
                 cv=5,
                 scoring="recall",
-                verbose=1,
+                # verbose=1,
                 n_jobs=-1
             )
             grid_search.fit(self._X_train, self._y_train)
             self._scores[key] = {
                 "model": model,
                 "best_params": grid_search.best_params_,
-                "train_score": recall_score(self._X_train, grid_search.predict(self._X_train)),
-                "val_score": recall_score(self._X_val, grid_search.predict(self._X_val))
+                "train_score": recall_score(self._y_train, grid_search.predict(self._X_train)),
+                "val_score": recall_score(self._y_val, grid_search.predict(self._X_val))
             }
             print(f"... {key} training complete.")
         return self
