@@ -1,9 +1,8 @@
 import time
-import warnings
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn.exceptions import FitFailedWarning
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
@@ -12,12 +11,6 @@ from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, recall_score
-
-
-# Ignore warnings that doesn't affect the results
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", message=".*penalty.*")
-warnings.filterwarnings("ignore", category=FitFailedWarning)
 
 
 class Processing():
@@ -152,7 +145,7 @@ class Visualisation():
                     ax.grid(axis="y", zorder=1)
                     c += 1
                 else:
-                    fig.delaxes(axes[row, col])  # Remove unused subplot
+                    fig.delaxes(axes[row, col])  # Removes unused subplot
         fig.suptitle("\nExploratory Data Analysis\n", fontweight="bold", fontsize=20)
         plt.subplots_adjust(hspace=0.2, wspace=0.3)
         plt.show()
@@ -259,6 +252,29 @@ class Visualisation():
         plt.show()
 
 
+    def result_comparison():
+        num = pd.read_csv("scores/num_scores.csv")
+        cat = pd.read_csv("scores/cat_scores.csv") # can be done in another way in script
+        num_val_mean = num["val_score"].mean()
+        cat_val_mean = cat["val_score"].mean()
+        num["dataset"] = "num"
+        cat["dataset"] = "cat"
+        cols = ["dataset", "model", "best_params", "train_score", "val_score"]
+        num = num[cols]
+        cat = cat[cols]
+        df = pd.concat([num, cat], ignore_index=True)
+        sns.barplot(data=df, x="model", y="val_score", hue="dataset", zorder=2)
+        plt.axhline(y=num_val_mean, color="skyblue", linestyle="--", label="num mean", zorder=3)
+        plt.axhline(y=cat_val_mean, color="tan", linestyle="--", label="cat mean", zorder=3)
+        plt.xticks(rotation=45)
+        plt.title("Validation Scores\n", fontweight="bold")
+        plt.ylabel("Recall Score")
+        plt.xlabel("")
+        plt.grid(axis="y")
+        plt.legend()
+        plt.show()
+
+
 class Modelling():
     """
     Handles the tuning and evaluation of different models.
@@ -325,7 +341,7 @@ class Modelling():
             #         "eta0": [0.01, 0.1, 1.0],
             #         "class_weight": ["balanced"],
             #         "max_iter": [10000],
-            #         "random_state": [1123],
+            #         "random_state": [self._seed],
             #     }
             # },
             "log_reg": {
@@ -340,7 +356,7 @@ class Modelling():
                         100,
                         1000
                     ],
-                    "penalty": ["l1", "l2", "elasticnet", None], 
+                    # "penalty": ["l1", "l2", "elasticnet", None], 
                     "solver": ["saga", "liblinear", "lbfgs"], 
                     "max_iter": [10000],
                     "random_state": [self._seed],
@@ -400,8 +416,9 @@ class Modelling():
         return self
 
 
-    def tuning(self):
+    def tuning(self, set_name=""):
         """Hyperparameter optimisation using GridSearchCV."""
+        print(f"\n{set_name}:")
         for key, values in self._param_grids.items():
             start_time = time.time()
             print(f"\nTraining {key} ...")
@@ -423,7 +440,7 @@ class Modelling():
             }
             print(f"... training complete.")
             duration = time.time() - start_time
-            print(f"Duration: {duration // 60:.0f}m {duration % 60:.1f}s.\n")
+            print(f"Duration: {duration // 60:.0f}m {duration % 60:.1f}s.")
         return self
     
 
