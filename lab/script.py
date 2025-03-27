@@ -1,4 +1,5 @@
 import time
+import warnings
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -11,6 +12,10 @@ from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, recall_score
+
+
+warnings.filterwarnings("ignore", category=FitFailedWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class Processing():
@@ -254,7 +259,7 @@ class Visualisation():
 
     def result_comparison():
         num = pd.read_csv("scores/num_scores.csv")
-        cat = pd.read_csv("scores/cat_scores.csv") # can be done in another way in script
+        cat = pd.read_csv("scores/cat_scores.csv")
         num_val_mean = num["val_score"].mean()
         cat_val_mean = cat["val_score"].mean()
         num["dataset"] = "num"
@@ -285,7 +290,7 @@ class Modelling():
 
 
     def __init__(self, df):
-        self._seed = 1123
+        self._seed = None
         self._X = df.drop(columns=["cardio"])
         self._y = df["cardio"]
         self._X_train = None
@@ -297,53 +302,52 @@ class Modelling():
         self._scores = {}
         self._table = None
         self._param_grids = {
-            # "svm": {
-            #     "model": SVC(),
-            #     "params": {
-            #         "C": [0.1, 1, 10],
-            #         "gamma": ["scale", "auto"],
-            #         "kernel": ["sigmoid", "rbf"],
-            #         "cache_size": [1000], # NOTE: total RAM usage = cache × CPU_threads
-            #     }
-            # },
-            # "knn": {
-            #     "model": KNeighborsClassifier(),
-            #     "params": {
-            #         "n_neighbors": [3, 5, 9],
-            #         "weights": ["uniform", "distance"], 
-            #         "algorithm": ["auto", "kd_tree", "ball_tree", "brute"], 
-            #         "p": [1, 2],
-            #     }
-            # },
-            # "rforest": {
-            #     "model": RandomForestClassifier(),
-            #     "params": {
-            #         "n_estimators": [50, 100, 200], 
-            #         "criterion": ["gini", "entropy"],
-            #         "max_depth": [None, 2, 10], 
-            #         "min_samples_split": [2, 15, 30],
-            #         "random_state": [self._seed],
-            #     }
-            # },
-            # "sgd": {
-            #     "model": SGDClassifier(),
-            #     "params": {
-            #         "alpha": [
-            #             0.000001,
-            #             0.00001,
-            #             0.0001, # default
-            #             0.001, 
-            #             0.01,
-            #         ],
-            #         "loss": ["log_loss", "hinge", "modified_huber", "perceptron"],
-            #         "penalty": ["l1", "l2", "elasticnet", None],
-            #         "learning_rate": ["optimal", "invscaling", "adaptive"],
-            #         "eta0": [0.01, 0.1, 1.0],
-            #         "class_weight": ["balanced"],
-            #         "max_iter": [10000],
-            #         "random_state": [self._seed],
-            #     }
-            # },
+            "svc": {
+                "model": SVC(),
+                "params": {
+                    "C": [0.1, 1, 10],
+                    # "gamma": ["scale", "auto"],
+                    # "kernel": ["sigmoid", "rbf"],
+                    "cache_size": [1000], # NOTE: total RAM usage = cache × CPU_threads
+                }
+            },
+            "knn": {
+                "model": KNeighborsClassifier(),
+                "params": {
+                    "n_neighbors": [3, 5, 9],
+                    "weights": ["uniform", "distance"], 
+                    "algorithm": ["auto", "kd_tree", "ball_tree", "brute"], 
+                    "p": [1, 2],
+                }
+            },
+            "rforest": {
+                "model": RandomForestClassifier(),
+                "params": {
+                    "n_estimators": [50, 100, 200], 
+                    "criterion": ["gini", "entropy"],
+                    "max_depth": [None, 2, 10], 
+                    "min_samples_split": [2, 15, 30],
+                    "random_state": [self._seed],
+                }
+            },
+            "sgdc": {
+                "model": SGDClassifier(),
+                "params": {
+                    "alpha": [
+                        0.001, 
+                        0.01,
+                        0.1,
+                        1,
+                    ],
+                    "loss": ["log_loss", "modified_huber"],
+                    "penalty": ["l1", "l2", "elasticnet", None],
+                    # "learning_rate": ["optimal", "invscaling", "adaptive"],
+                    "eta0": [0.01, 0.1, 1.0],
+                    "class_weight": ["balanced"],
+                    "max_iter": [10000],
+                    "random_state": [self._seed],
+                }
+            },
             "log_reg": {
                 "model": LogisticRegression(),
                 "params": {
@@ -356,7 +360,6 @@ class Modelling():
                         100,
                         1000
                     ],
-                    # "penalty": ["l1", "l2", "elasticnet", None], 
                     "solver": ["saga", "liblinear", "lbfgs"], 
                     "max_iter": [10000],
                     "random_state": [self._seed],
@@ -405,20 +408,35 @@ class Modelling():
         return self
     
 
-    def voting_split(self):
+    # def voting_split(self): 
+    #     """
+    #     Splits the data into training and test sets.
+    #     Standardises and normalises the data.
+    #     """
+    #     self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=self._seed)
+    #     self._standardiser(val_set=False)
+    #     self._normaliser(val_set=False)
+    #     return self
+    
+
+    def combine_train_val(self): 
         """
-        Splits the data into training and test sets.
-        Standardises and normalises the data.
+        Combines the training and validation sets.
+        This is done before the final evaluation so that the ensemble can train on all available data.
         """
-        self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=self._seed)
-        self._standardiser(val_set=False)
-        self._normaliser(val_set=False)
+        print(f"X_train shape: {self._X_train.shape}")
+        print(f"X_val shape: {self._X_val.shape}")
+        print(f"y_train shape: {np.shape(self._y_train)}")
+        print(f"y_val shape: {np.shape(self._y_val)}")
+        self._X_train = np.vstack([self._X_train, self._X_val])
+        self._y_train = np.concatenate([self._y_train, self._y_val])
         return self
 
 
     def tuning(self, set_name=""):
         """Hyperparameter optimisation using GridSearchCV."""
-        print(f"\n{set_name}:")
+        print("======================")
+        print(f"{set_name}:")
         for key, values in self._param_grids.items():
             start_time = time.time()
             print(f"\nTraining {key} ...")
@@ -428,19 +446,22 @@ class Modelling():
                 estimator=model,
                 param_grid=params,
                 cv=5,
-                scoring="recall",
+                scoring="accuracy",
                 n_jobs=-1
             )
             grid_search.fit(self._X_train, self._y_train)
             self._scores[key] = {
                 "model": model,
                 "best_params": grid_search.best_params_,
-                "train_score": recall_score(self._y_train, grid_search.predict(self._X_train)),
-                "val_score": recall_score(self._y_val, grid_search.predict(self._X_val))
+                # "train_score": recall_score(self._y_train, grid_search.predict(self._X_train)),
+                # "val_score": recall_score(self._y_val, grid_search.predict(self._X_val))
+                "train_score": grid_search.score(self._X_train, self._y_train),
+                "val_score": grid_search.score(self._X_val, self._y_val)
             }
             print(f"... training complete.")
             duration = time.time() - start_time
             print(f"Duration: {duration // 60:.0f}m {duration % 60:.1f}s.")
+        print("======================")
         return self
     
 

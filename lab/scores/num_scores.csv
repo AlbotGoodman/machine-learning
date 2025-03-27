@@ -1,6 +1,6 @@
 model,best_params,train_score,val_score
-SGDClassifier(),"{'alpha': 0.001, 'class_weight': 'balanced', 'eta0': 0.01, 'learning_rate': 'adaptive', 'loss': 'perceptron', 'max_iter': 10000, 'penalty': 'l2', 'random_state': 1123}",0.8335713298631904,0.8468817204301076
-LogisticRegression(),"{'C': 0.001, 'max_iter': 10000, 'penalty': 'l1', 'random_state': 1123, 'solver': 'liblinear'}",0.7642452439080566,0.7625806451612903
-RandomForestClassifier(),"{'criterion': 'gini', 'max_depth': None, 'min_samples_split': 15, 'n_estimators': 200, 'random_state': 1123}",0.8208116449398867,0.6963440860215053
-KNeighborsClassifier(),"{'algorithm': 'brute', 'n_neighbors': 9, 'p': 2, 'weights': 'uniform'}",0.7308950204984108,0.6864516129032258
-SVC(),"{'C': 10, 'cache_size': 1000, 'gamma': 'auto', 'kernel': 'rbf'}",0.655073932470404,0.6634408602150538
+RandomForestClassifier(),"{'criterion': 'entropy', 'max_depth': 10, 'min_samples_split': 2, 'n_estimators': 50, 'random_state': None}",0.7512562242786658,0.7267614601018676
+SVC(),"{'C': 10, 'cache_size': 1000}",0.7325435983720243,0.724320882852292
+SGDClassifier(),"{'alpha': 0.01, 'class_weight': 'balanced', 'eta0': 1.0, 'loss': 'modified_huber', 'max_iter': 10000, 'penalty': 'elasticnet', 'random_state': None}",0.7235397103294604,0.7211375212224108
+LogisticRegression(),"{'C': 100, 'max_iter': 10000, 'random_state': None, 'solver': 'lbfgs'}",0.725063095427571,0.7209252971137521
+KNeighborsClassifier(),"{'algorithm': 'auto', 'n_neighbors': 9, 'p': 2, 'weights': 'uniform'}",0.7592824174075169,0.7092529711375212
