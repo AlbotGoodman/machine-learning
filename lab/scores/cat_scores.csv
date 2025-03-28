@@ -1,6 +1,6 @@
 model,best_params,train_score,val_score
-RandomForestClassifier(),"{'criterion': 'gini', 'max_depth': 10, 'min_samples_split': 15, 'n_estimators': 100, 'random_state': None}",0.7068734226143107,0.706918505942275
-SGDClassifier(),"{'alpha': 0.001, 'class_weight': 'balanced', 'eta0': 0.1, 'loss': 'log_loss', 'max_iter': 10000, 'penalty': None, 'random_state': None}",0.6933903276414816,0.705220713073005
-LogisticRegression(),"{'C': 1000, 'max_iter': 10000, 'random_state': None, 'solver': 'liblinear'}",0.6923444214547191,0.7046901528013583
-SVC(),"{'C': 10, 'cache_size': 1000}",0.6961187785634706,0.6997028862478778
-KNeighborsClassifier(),"{'algorithm': 'auto', 'n_neighbors': 9, 'p': 1, 'weights': 'uniform'}",0.7320433823696596,0.6816638370118846
+RandomForestClassifier(),"{'criterion': 'entropy', 'max_depth': None, 'min_samples_split': 30, 'n_estimators': 50, 'random_state': None}",0.7561871527618348,0.6695483034363519
+KNeighborsClassifier(),"{'algorithm': 'auto', 'n_neighbors': 11, 'weights': 'uniform'}",0.698057762064374,0.6529068510914199
+SGDClassifier(),"{'alpha': 0.001, 'class_weight': 'balanced', 'loss': 'modified_huber', 'max_iter': 10000, 'penalty': 'elasticnet', 'random_state': None}",0.624041507874558,0.6345364166846769
+LogisticRegression(),"{'C': 100, 'max_iter': 10000, 'random_state': None, 'solver': 'saga'}",0.6158684971761789,0.6278366111951589
+SVC(),"{'C': 10, 'cache_size': 1000}",0.5987878231323752,0.609033931272963

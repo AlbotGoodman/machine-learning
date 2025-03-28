@@ -14,6 +14,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, recall_score
 
 
+# filtering out warnings that doesn't affect the results but clutter the output
 warnings.filterwarnings("ignore", category=FitFailedWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -126,7 +127,7 @@ class Visualisation():
         titles = [
             "Cardiovascular Disease Distribution\n",
             "Cholesterol Distribution\n",
-            "Age Distribution\n", # TODO: perhaps we can do without hue cardio here
+            "Age Distribution\n", 
             "Smoking Distribution\n",
             "Weight Distribution\n",
             "Height Distribution\n",
@@ -156,19 +157,6 @@ class Visualisation():
         plt.show()
 
 
-    def boxplot_comparison(df):
-        fig, ax = plt.subplots(1, 2, figsize=(8, 5))
-        sns.boxplot(data=df, y="ap_hi", ax=ax[0])
-        sns.boxplot(data=df, y="ap_lo", ax=ax[1])
-        ax[0].set_title("Systolic Blood Pressure\n", fontweight="bold")
-        ax[1].set_title("Diastolic Blood Pressure\n", fontweight="bold")
-        ax[0].grid(axis='y')
-        ax[1].grid(axis='y')
-        ax[0].set_ylabel("mmHg")
-        ax[1].set_ylabel("")
-        plt.show()
-
-
     def risk_factors(df):
         """
         Displays subplots of the dataset.
@@ -187,7 +175,7 @@ class Visualisation():
         plot_functions = [
             lambda ax: sns.countplot(data=df, x="bmi_cat", order=bmi_labels, hue="cardio", ax=ax, palette=cardio_palette, zorder=2),
             lambda ax: sns.countplot(data=df, x="ap_cat", order=bp_labels, hue="cardio", ax=ax, palette=cardio_palette, zorder=2),
-            lambda ax: sns.countplot(data=df, x=(df["age"] // 365.25).astype(int), hue="cardio", ax=ax, palette=cardio_palette, zorder=2), # TODO: fix the x-axis labelling overlap
+            lambda ax: sns.countplot(data=df, x=(df["age"] // 365.25).astype(int), hue="cardio", ax=ax, palette=cardio_palette, zorder=2), 
             lambda ax: sns.countplot(data=df, x="cholesterol", hue="cardio", ax=ax, palette=cardio_palette, zorder=2),
             lambda ax: sns.countplot(data=df, x="gluc", hue="cardio", ax=ax, palette=cardio_palette, zorder=2),
             lambda ax: sns.countplot(data=df, x="active", hue="cardio", ax=ax, palette=cardio_palette, zorder=2)
@@ -290,7 +278,7 @@ class Modelling():
 
 
     def __init__(self, df):
-        self._seed = None
+        self._seed = None # can be set to a value for reproducibility
         self._X = df.drop(columns=["cardio"])
         self._y = df["cardio"]
         self._X_train = None
@@ -306,18 +294,15 @@ class Modelling():
                 "model": SVC(),
                 "params": {
                     "C": [0.1, 1, 10],
-                    # "gamma": ["scale", "auto"],
-                    # "kernel": ["sigmoid", "rbf"],
                     "cache_size": [1000], # NOTE: total RAM usage = cache × CPU_threads
                 }
             },
             "knn": {
                 "model": KNeighborsClassifier(),
                 "params": {
-                    "n_neighbors": [3, 5, 9],
+                    "n_neighbors": [5, 11, 25],
                     "weights": ["uniform", "distance"], 
                     "algorithm": ["auto", "kd_tree", "ball_tree", "brute"], 
-                    "p": [1, 2],
                 }
             },
             "rforest": {
@@ -327,6 +312,23 @@ class Modelling():
                     "criterion": ["gini", "entropy"],
                     "max_depth": [None, 2, 10], 
                     "min_samples_split": [2, 15, 30],
+                    "random_state": [self._seed],
+                }
+            },
+            "log_reg": {
+                "model": LogisticRegression(),
+                "params": {
+                    "C": [
+                        0.001,
+                        0.01,
+                        0.1,
+                        1,
+                        10,
+                        100,
+                        1000
+                    ],
+                    "solver": ["saga", "liblinear", "lbfgs"], 
+                    "max_iter": [10000],
                     "random_state": [self._seed],
                 }
             },
@@ -341,26 +343,7 @@ class Modelling():
                     ],
                     "loss": ["log_loss", "modified_huber"],
                     "penalty": ["l1", "l2", "elasticnet", None],
-                    # "learning_rate": ["optimal", "invscaling", "adaptive"],
-                    "eta0": [0.01, 0.1, 1.0],
                     "class_weight": ["balanced"],
-                    "max_iter": [10000],
-                    "random_state": [self._seed],
-                }
-            },
-            "log_reg": {
-                "model": LogisticRegression(),
-                "params": {
-                    "C": [
-                        0.001,
-                        0.01,
-                        0.1,
-                        1, # default
-                        10,
-                        100,
-                        1000
-                    ],
-                    "solver": ["saga", "liblinear", "lbfgs"], 
                     "max_iter": [10000],
                     "random_state": [self._seed],
                 }
@@ -406,31 +389,6 @@ class Modelling():
         self._standardiser()
         self._normaliser()
         return self
-    
-
-    # def voting_split(self): 
-    #     """
-    #     Splits the data into training and test sets.
-    #     Standardises and normalises the data.
-    #     """
-    #     self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X, self._y, test_size=0.3, random_state=self._seed)
-    #     self._standardiser(val_set=False)
-    #     self._normaliser(val_set=False)
-    #     return self
-    
-
-    def combine_train_val(self): 
-        """
-        Combines the training and validation sets.
-        This is done before the final evaluation so that the ensemble can train on all available data.
-        """
-        print(f"X_train shape: {self._X_train.shape}")
-        print(f"X_val shape: {self._X_val.shape}")
-        print(f"y_train shape: {np.shape(self._y_train)}")
-        print(f"y_val shape: {np.shape(self._y_val)}")
-        self._X_train = np.vstack([self._X_train, self._X_val])
-        self._y_train = np.concatenate([self._y_train, self._y_val])
-        return self
 
 
     def tuning(self, set_name=""):
@@ -446,17 +404,15 @@ class Modelling():
                 estimator=model,
                 param_grid=params,
                 cv=5,
-                scoring="accuracy",
+                scoring="recall",
                 n_jobs=-1
             )
             grid_search.fit(self._X_train, self._y_train)
             self._scores[key] = {
                 "model": model,
                 "best_params": grid_search.best_params_,
-                # "train_score": recall_score(self._y_train, grid_search.predict(self._X_train)),
-                # "val_score": recall_score(self._y_val, grid_search.predict(self._X_val))
-                "train_score": grid_search.score(self._X_train, self._y_train),
-                "val_score": grid_search.score(self._X_val, self._y_val)
+                "train_score": recall_score(self._y_train, grid_search.predict(self._X_train)),
+                "val_score": recall_score(self._y_val, grid_search.predict(self._X_val))
             }
             print(f"... training complete.")
             duration = time.time() - start_time
@@ -477,7 +433,7 @@ class Modelling():
         return self
 
 
-    def voting(self):
+    def ensemble(self):
         """Creates a voting classifier with all models using optimised parameter values."""
         names = []
         models = self._table["model"].to_list()
@@ -486,12 +442,22 @@ class Modelling():
         params = self._table["best_params"].to_list()
         vote_clf_list = []
         for name, model, param in zip(names, models, params):
-            # The addition of **params was from Copilot by highlighting the loop and prompting:
+            # The addition of "**params" was from Copilot by highlighting the loop and prompting:
             # "Create a list for the voting classifier where the params are assigned as well."
             model.set_params(**param)
             vote_clf_list.append((name, model))
         vote_clf = VotingClassifier(estimators=vote_clf_list, voting="hard")
         return vote_clf
+    
+
+    def _combine_train_val(self): 
+        """
+        Helper method that combines the training and validation sets.
+        This is done before the final evaluation so that the ensemble can train on all available data.
+        """
+        self._X_train = np.concatenate([self._X_train, self._X_val])
+        self._y_train = np.concatenate([self._y_train, self._y_val])
+        return self
 
 
     def evaluation(self, model):
@@ -499,6 +465,7 @@ class Modelling():
         Prints a classification report.
         Plots a confusion matrix of the ensemble model.
         """
+        self._combine_train_val()
         model.fit(self._X_train, self._y_train)
         y_pred = model.predict(self._X_test)
         print(classification_report(self._y_test, y_pred))
@@ -537,11 +504,8 @@ def main():
     cat_scores = model_cat.scoreboard("cat_scores")
     print(num_scores.table)
     print(cat_scores.table)
-    ensemble = Modelling(df_num)
-    ensemble.voting_split()
-    ensemble._table = num_scores.table.copy()
-    vote_clf = ensemble.voting()
-    ensemble.evaluation(vote_clf)
+    vote_clf = model_num.ensemble()
+    model_num.evaluation(vote_clf)
 
 if __name__ == "__main__":
     main()
