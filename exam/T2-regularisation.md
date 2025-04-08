@@ -1,5 +1,7 @@
 # Regularisation
 
+*Regularization techniques help prevent overfitting by adding penalty terms to the model's complexity.*
+
 ## Linear models
 Remember that in linear models we use Ordinary Least Squares (OLS) which finds the minimum sum of squared errors (SSE from the statistics course).
 
