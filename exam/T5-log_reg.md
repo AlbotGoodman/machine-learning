@@ -1,6 +1,6 @@
 # Logistic Regression
 
-*Despite its name, logistic regression is a classification model that estimates the probability of a binary outcome.*
+*Despite its name, logistic regression is mainly a classification model that estimates the probability of a binary outcome.*
 
 Though it sounds like a value regression model it is actually used for classifying since it predicts if something is True or False (binary) but it can work with other types of data, e.g. continuous and discrete and tell which variables that are useful and not. 
 

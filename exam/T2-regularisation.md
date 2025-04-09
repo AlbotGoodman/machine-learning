@@ -47,11 +47,11 @@ This is very similar to Ridge Regression, it also tries to minimise variance by 
 
 $$ \text{SSE} + \lambda (|\beta_1| + |\beta_2| + ... + |\beta_n|) $$
 
-When we before increased the penalty term (lambda) we got an almost horisontal line. Lasso Regression can actually make the slope horisontal. That means that instead of spreading variance between variables/coefficients it can set their values to zero. That way it excludes variables which makes it a little better att reducing variance in models that may contain a lot of "useless" variables. In contrast, Ridge Regression tends to do better when most variables are useful. 
+When we before increased the penalty term (lambda) we got an almost horisontal line. Lasso Regression instead eliminates variables entirely. That means that instead of spreading variance between variables/coefficients it can set their values to zero. That way it excludes variables which makes it a little better att reducing variance in models that may contain a lot of "useless" variables. In contrast, Ridge Regression tends to do better when most variables are useful. 
 
 Here is the cost function of Lasso Regression: 
 
-$C(\vec{\theta}) = MSE(\vec{\theta}) + \lambda \frac{1}{2}\sum_{i=1}^n |\theta_i|$
+$$ C(\vec{\theta}) = MSE(\vec{\theta}) + \lambda \frac{1}{2}\sum_{i=1}^n |\theta_i| $$
 
 ## Elastic Net (both)
 

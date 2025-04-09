@@ -18,8 +18,8 @@ $$ \bold{C(\theta)} = \frac{1}{n} \sum^n_{i=1} (y_i - \theta X_i)^2 $$
 
 Detta är en iterativ process och kan skrivas om såhär:  
 
-$$ \theta_{j+1} = \theta_i - \eta \nabla \bold{C(\theta)} $$  
-$$ \theta_{j+1} = \theta_i - \eta (\frac{2}{n} \bold{X^T} (\bold{X\theta_j - y})) $$  
+$$ \theta_{j+1} = \theta_j - \eta \nabla \bold{C(\theta)} $$  
+$$ \theta_{j+1} = \theta_j - \eta (\frac{2}{n} \bold{X^T} (\bold{X\theta_j - y})) $$  
 
 How it works is by finding the derivative of the function for the U-shape to determine the slope at any value for the intercept. So for each data point it calculates the derivative and then insert a random number for, as used above, the intercept. What it actually does it do this for both the slope and the intercept. If there are more variables (higher dimensions) then each derivative will be calculated
 
@@ -47,6 +47,6 @@ SGD uses a single random data point to calculate the derivatives. That can be ve
 
 Another pro of these is that we can update the calculations with new data without having to calculate the whole thing again. Also mini-batch can be run on GPUs to calculate all derivatives simultaneously. 
 
-$$ \text{OLS} = 0(np^2) $$  
-$$ \text{SGD} = 0(n) $$  
+$$ \text{OLS} = O(np^2) $$  
+$$ \text{SGD} = O(n) $$  
 $$ n,p ~ \epsilon ~ sample ~ size, ~ dimensions $$  
