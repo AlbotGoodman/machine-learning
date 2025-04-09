@@ -14,6 +14,13 @@ Now imagine that we know the slope of the line but not the intercept on the y ax
 .  
 A very efficient but not optimal way of calculating this is with GD. It takes longer strides when far from the optimal solution but smaller steps as it gets closer (when the SSE doesn't change as much). 
 
+$$ \bold{C(\theta)} = \frac{1}{n} \sum^n_{i=1} (y_i - \theta X_i)^2 $$  
+
+Detta är en iterativ process och kan skrivas om såhär:  
+
+$$ \theta_{j+1} = \theta_i - \eta \nabla \bold{C(\theta)} $$  
+$$ \theta_{j+1} = \theta_i - \eta (\frac{2}{n} \bold{X^T} (\bold{X\theta_j - y})) $$  
+
 How it works is by finding the derivative of the function for the U-shape to determine the slope at any value for the intercept. So for each data point it calculates the derivative and then insert a random number for, as used above, the intercept. What it actually does it do this for both the slope and the intercept. If there are more variables (higher dimensions) then each derivative will be calculated
 
 $$ \text{step size} = \text{slope} \cdot \text{learning rate} $$  
@@ -38,7 +45,7 @@ When you have fewer data points all this calculating doesn't take too much time 
 ## SGD and mini-batch GD
 SGD uses a single random data point to calculate the derivatives. That can be very useful when there is redundancies in the data, e.g. clusters of data points. But an even better way to do this is using a mini-batch which uses a subset of random data points, balancing speed and stability. 
 
-Another pro of these is that we can update the calculations with new data without having to calculate the whole thing again. 
+Another pro of these is that we can update the calculations with new data without having to calculate the whole thing again. Also mini-batch can be run on GPUs to calculate all derivatives simultaneously. 
 
 $$ \text{OLS} = 0(np^2) $$  
 $$ \text{SGD} = 0(n) $$  
