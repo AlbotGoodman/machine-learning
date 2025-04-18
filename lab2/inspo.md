@@ -1,3 +1,28 @@
+# Requirements
+
+Choose your feature space and method for redcommendation. Then implement a system that recommends five movies given a certain input. 
+
+1. Predictive rating
+- regression on ratings
+- most suited for content filtering:
+    - training on similar users the preditions might be good enough
+    - one row per user
+    - filter data (e.g."rating experts" > 100 ratings/user) to minimise dimensionality
+
+2. Similarities in genres
+- one-hot encoding on genres
+- KNN-Transform with cosine similarity as metric
+
+3. NLP
+- combine tags and genres
+- use something like TF-IDF to capture similarities between movies
+
+4. Combination approach
+- e.g. 1+3
+
+5. KMeans
+- clustering around the recommended movies to increase diversity (?)
+
 # Ideas
 
 - sentiment analysis on tag
