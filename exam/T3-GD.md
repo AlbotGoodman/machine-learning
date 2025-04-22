@@ -7,7 +7,7 @@ $$ \text{SSE/SSR/RSS} = \sum^n_{i=1} (y_i - ŷ_i)^2 $$
 Like OLS, GD can try to minimise the SSE (one of several loss functions to optimise for). Imagine an optimisation of a linear regression. You have a scatter plot with data points and a line. If the line fits between the points so that it is close to the majority of them then the line is optimised. 
 
 .
-Now imagine that we know the slope of the line but not the intercept on the y axis. We can start with setting the intercept to zero and then go from there. If we would plot the SSE (y) as we increase the slope (x) we would get a U-shape. Where the U-shape (SSE) is at it's lowest is where we'll find the optimum intercept value. 
+Now imagine that we know the slope of the line but not the intercept on the y axis. We can start with setting the intercept to zero and then go from there. If we would plot the SSE (y) as we increase the intercept (x) we would get a U-shape. Where the U-shape (SSE) is at it's lowest is where we'll find the optimum intercept value. 
 
 <img src="../assets/SSE_graph.png" width="500">
 
@@ -40,7 +40,7 @@ Two or more derivates of the same function is called a *gradient*. This gradient
     - step size is very small (close to zero), or
     - maximum number of steps are reached
 
-When you have fewer data points all this calculating doesn't take too much time but GD uses the enrite dataset at each step. A more efficient way to do this is with stochastic gradient descent (SGD) or mini-batch gradient descent (mini-batch GD). 
+When you have fewer data points all this calculating doesn't take too much time but GD uses the entire dataset at each step. A more efficient way to do this is with stochastic gradient descent (SGD) or mini-batch gradient descent (mini-batch GD). 
 
 ## SGD and mini-batch GD
 SGD uses a single random data point to calculate the derivatives. That can be very useful when there is redundancies in the data, e.g. clusters of data points. But an even better way to do this is using a mini-batch which uses a subset of random data points, balancing speed and stability. 

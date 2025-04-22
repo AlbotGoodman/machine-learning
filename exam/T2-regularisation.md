@@ -19,12 +19,12 @@ $$ \text{overfit} = \text{high variance} + \text{low bias} $$
 $$ \text{high variance} = \text{low precision} $$  
 $$ \text{high bias} = \text{low accuracy} $$  
 
-Remember: if you have good enough results them you don't need to regularise.
+Remember: if you have good enough results then you don't need to regularise.
 
 ## Ridge Regression (l2-norm)
 When a model is too complex, the dataset too small and noisy the model will pick up those patterns and result in an overfit. 
 
-The main idea with Ridge Regression is that we doesn't want an overfit so we introduce bias. At first that makes the line not fit the training data very well but better captures the relationship in unseen data - it generalises better. 
+The main idea with Ridge Regression is that we don't want an overfit so we introduce bias. At first that makes the line not fit the training data very well but better captures the relationship in unseen data - it generalises better. 
 
 We can use bias to lower the variance to provide a better long term predictions. 
 

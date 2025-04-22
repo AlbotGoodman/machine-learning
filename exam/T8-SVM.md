@@ -29,7 +29,7 @@ C is the hyperparameter used. Smaller values gives high variance + low bias and 
 
 ### Some kernel functions
 
-The **polynomial kernel** sets a degree (dimension) and transforms the data into that dimension and draws a hyperplane to separate the data. So if d=2 then the data will be on an quadratic line and a straight line can separate the data. The **radial kernel** finds SCVs in infinite dimensions. It however behaves like a weighted nearest neighbour model in that the closest ibservations have more influence on how we classify data. 
+The **polynomial kernel** sets a degree (dimension) and transforms the data into that dimension and draws a hyperplane to separate the data. So if d=2 then the data will be on an quadratic line and a straight line can separate the data. The **radial kernel** finds SCVs in infinite dimensions. It however behaves like a weighted nearest neighbour model in that the closest observations have more influence on how we classify data. 
 
 One important aspect to note is that **the kernel trick** allows SVMs to calculate high-dimensional relationships without actually transforming data to the higher dimension. This offer high performance and efficiency. SVMs don't actually need the exact coordinates of points in the higher-dimensional space. They only need to know the distances between points. Then the data is linearly separable but can be seen as complex in 2D. 
 
