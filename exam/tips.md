@@ -89,10 +89,10 @@ Hyperparameters are configuration settings that aren't learned from data but set
 
 **For classification:**
 
-- k in k-nearest neighbors (L6-KNN.ipynb)
-- C (regularization parameter) in SVMs (L8-SVM.ipynb)
-- max_depth, min_samples_split in decision trees (L9-Decision_tree.ipynb)
-- n_estimators in random forests (Lec10-RandomForest.ipynb)
+- k in k-nearest neighbors 
+- C (regularization parameter) in SVMs 
+- max_depth, min_samples_split in decision trees 
+- n_estimators in random forests 
 
 **Tuning approaches:**
 
@@ -246,7 +246,7 @@ Decision trees provide the foundation for many powerful ensemble methods that ar
 - Output: numerical predictions
 - Examples: linear regression, regression trees, SVR
 
-**Mo6dels that can handle both:**
+**Models that can handle both:**
 
 - Decision trees/Random forests (with appropriate criterion)
 - SVMs (SVR for regression)
