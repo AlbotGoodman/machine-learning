@@ -45,3 +45,11 @@ Choose your feature space and method for redcommendation. Then implement a syste
 
 - reduce the number of rows by combining tags from the same user regarding the same movie
 - regularisation, is that any good here? 
+
+## Ludwilton
+
+- begränsa antalet recensioner per film till 100 (utan att filtrera bort filmerna)
+- spara modellerna med joblib för att inte träna igen
+- ludde såg förbättring med >200 c_components för NMF trots att elbow plot inte visade på förbättring
+- kanske ta bort de användare med standardavvikelse nära noll, inte bara noll ALTERNATIVT ta bort alla noll i stället för att sätta till 0.5?
+- testa större modell men mindre data för att se (som jag gjorde i förra labben)
