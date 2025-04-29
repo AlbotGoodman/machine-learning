@@ -48,8 +48,13 @@ Choose your feature space and method for redcommendation. Then implement a syste
 
 ## Ludwilton
 
-- begränsa antalet recensioner per film till 100 (utan att filtrera bort filmerna)
-- spara modellerna med joblib för att inte träna igen
-- ludde såg förbättring med >200 c_components för NMF trots att elbow plot inte visade på förbättring
+- *begränsa antalet recensioner per film till 100 (utan att filtrera bort filmerna)*
+    - jag kapar redan datan vid ca 75:e kvartilen som nedre gräns, är det för högt kanske? 
+    - hur ska jag sätta en övre gräns för populära filmer utan att ta bort dem eller manipulera datan negativt så att enbart vissa användare har satt betyg på populära filmer?
+- *spara modellerna med joblib för att inte träna igen*
+- *ludde såg förbättring med >200 c_components för NMF trots att elbow plot inte visade på förbättring*
 - kanske ta bort de användare med standardavvikelse nära noll, inte bara noll ALTERNATIVT ta bort alla noll i stället för att sätta till 0.5?
 - testa större modell men mindre data för att se (som jag gjorde i förra labben)
+
+- find optimal rank
+    - borde jag inte kunna köra gridsearchcv eller någon annan cv? optimera för RMSE och välja ut lägsta parametrarna och spara i joblib? 
