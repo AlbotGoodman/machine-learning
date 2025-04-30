@@ -56,5 +56,15 @@ Choose your feature space and method for redcommendation. Then implement a syste
 - kanske ta bort de användare med standardavvikelse nära noll, inte bara noll ALTERNATIVT ta bort alla noll i stället för att sätta till 0.5?
 - testa större modell men mindre data för att se (som jag gjorde i förra labben)
 
+Andrew: 
 - find optimal rank
     - borde jag inte kunna köra gridsearchcv eller någon annan cv? optimera för RMSE och välja ut lägsta parametrarna och spara i joblib? 
+ 
+ # TO DO
+
+ 1. cap movies and users
+ 2. save a useful model with joblib
+ 3. create a recommendation function
+ 4. combine collab with content
+ 5. merge into a script
+ 6. finish streamlit app
