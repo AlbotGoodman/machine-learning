@@ -29,10 +29,7 @@ class Preprocessing:
         df -- DataFrame filtered by the specified column
         """
 
-        if col == "user_id":
-            lower_quantile = 0.50
-        else:
-            lower_quantile = 0.75
+        lower_quantile = 0.50 if col == "user_id" else 0.75
         higher_quantile = 0.90
 
         # Filtering out {col} with few rating contributions
@@ -42,7 +39,8 @@ class Preprocessing:
 
         # Calculate the number of ratings per {col}, then drop the {col} with fewer than cap and create a list of {col}_ids
         cap = int(group_ratings.quantile(higher_quantile))
-        outliers_list = filtered_ratings.groupby(col)["rating"].size().apply(lambda x: x if x > cap else np.nan).dropna().index.tolist()
+        group_counts = filtered_ratings.groupby(col)["rating"].size()
+        outliers_list = group_counts[group_counts > cap].index.tolist()
 
         # Iterate over each {col} and sample cap number of ratings
         outliers_collection = []
@@ -115,9 +113,9 @@ class Modelling:
         self.H = None
 
 
-    def _create_user_movie_matrix(self, df):
+    def create_user_movie_matrix(self, df):
         """
-        Helper function to create a sparse matrix for matrix factorisation.
+        Creates a sparse matrix for matrix factorisation.
 
         Arguments:
         df -- DataFrame with user_id, movie_id and rating columns
@@ -136,14 +134,16 @@ class Modelling:
         rows = np.array([user_mapper[user] for user in df["user_id"]])
         cols = np.array([movie_mapper[movie] for movie in df["movie_id"]])
         vals = df["rating"].values
-
         self.user_movie_matrix = csr_matrix((vals, (rows, cols)), shape=(len(unique_users), len(unique_movies)))
+
+        return self
 
 
     def train_model(self):
         self.model = MiniBatchNMF(n_components=150, batch_size=5000, alpha_W=0.001, alpha_H=0.01, l1_ratio=0.65)
         self.W = self.model.fit_transform(self.user_movie_matrix)
         self.H = self.model.components_
+        return self
 
 
 class Recommending:
@@ -169,4 +169,3 @@ class Recommending:
         Returns:
         recommendations -- DataFrame with recommended movie titles
         """
-        
