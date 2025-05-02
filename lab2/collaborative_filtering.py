@@ -1,21 +1,20 @@
 import pandas as pd
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
 from sklearn.decomposition import MiniBatchNMF
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from sklearn.metrics.pairwise import cosine_similarity
 import joblib
 
 
 class Preprocessing:
+    """Handles preprocessing for the collaborative filtering model."""
 
 
     def __init__(self):
         pass
 
-
+    
+    @staticmethod
     def filtering(df, col):
         """
         Using distribution quantiles to filter out the lower end of the data for statistical significance.
@@ -58,6 +57,7 @@ class Preprocessing:
         return filtered_ratings
     
 
+    @staticmethod
     def scaling(df):
         """
         Scales (standardising and normalising) the ratings of each user. 
@@ -87,6 +87,22 @@ class Preprocessing:
         return pd.concat(df_collection)
     
 
+    def filter_scaler(self, df):
+        """
+        A pipeline for preprocessing the ratings DataFrame.
+
+        Arguments:
+        df -- ratings DataFrame
+
+        Returns:
+        df -- returns a filtered and scaled ratings DataFrame
+        """
+        df = self.filtering(df, "user_id")
+        df = self.filtering(df, "movie_id")
+        df = self.scaling(df)
+        return df
+    
+
     def get_matching_movies(rating_df, movie_df):
         """
         Makes sure that both DataFrames contain the same movies. 
@@ -102,6 +118,7 @@ class Preprocessing:
 
 
 class Modelling:
+    """Uses users, movies and ratings to create a matrix facorisation model."""
 
 
     def __init__(self):
@@ -119,6 +136,9 @@ class Modelling:
 
         Arguments:
         df -- DataFrame with user_id, movie_id and rating columns
+
+        Returns: 
+        self -- updates instance variables
         """
         
         unique_users = np.sort(df["user_id"].unique())
@@ -130,7 +150,7 @@ class Modelling:
         self.user_mapper_reverse = {i: user for i, user in enumerate(unique_users)}
         self.movie_mapper_reverse = {i: movie for i, movie in enumerate(unique_movies)}
 
-        # Map original IDs to indices
+        # Map original IDs to indices (will need to be reversed later)
         rows = np.array([user_mapper[user] for user in df["user_id"]])
         cols = np.array([movie_mapper[movie] for movie in df["movie_id"]])
         vals = df["rating"].values
@@ -140,6 +160,15 @@ class Modelling:
 
 
     def train_model(self):
+        """
+        Trains a model based on MiniBatchNMF using set parameters found during explorative data analysis.
+
+        Arguments:
+        self -- uses only the instance variable for user-movie matrix
+
+        Returns:
+        self -- updates instance variables
+        """
         self.model = MiniBatchNMF(n_components=150, batch_size=5000, alpha_W=0.001, alpha_H=0.01, l1_ratio=0.65)
         self.W = self.model.fit_transform(self.user_movie_matrix)
         self.H = self.model.components_
@@ -147,15 +176,17 @@ class Modelling:
 
 
 class Recommending:
+    """Generates recommendations based on the trained collaborative filtering model."""
 
 
-    def __init__(self, model):
+    def __init__(self, model, movies_df):
         self.model = model
         self.user_movie_matrix = model.user_movie_matrix
         self.W = model.W
         self.H = model.H
         self.user_mapper_reverse = model.user_mapper_reverse
         self.movie_mapper_reverse = model.movie_mapper_reverse
+        self.movies = movies_df
 
 
     def get_recommendations(self, input, n_recommendations=5):
@@ -163,7 +194,7 @@ class Recommending:
         Provides movie recommendations based on the input movie titles.
         
         Arguments:
-        input -- List of movie titles
+        input -- List of movie IDs
         n_recommendations -- Number of recommendations to return
 
         Returns:

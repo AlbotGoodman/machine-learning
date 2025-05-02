@@ -1,7 +1,7 @@
 # DEPENDENCIES
 
 import streamlit as st
-# from collaborative_filtering import *
+import collaborative_filtering as collab
 # from content_based_filtering import *
 import pandas as pd
 import numpy as np
@@ -15,16 +15,25 @@ def load_data():
     """
     Load data from CSV files and return DataFrames.
     """
-    ratings = pd.read_csv("../data/movielens/ratings.csv")
+    ratings = pd.read_csv("../data/movielens/ratings.csv", usecols=["user_id", "movie_id", "rating"])
     movies = pd.read_csv("../data/movielens/movies.csv")
-    tags = pd.read_csv("../data/movielens/tags.csv")
+    tags = pd.read_csv("../data/movielens/tags.csv", usecols=["user_id", "movie_id", "tag"])
     return ratings, movies, tags
 
 
 ratings, movies, tags = load_data()
 
 
-# DATA PREPROCESSING
+# COLLABORATIVE FILTERING
+
+## DATA PREPROCESSING
+
+pipeline = collab.Preprocessing()
+ratings = pipeline.filter_scaler(ratings)
+movies = collab.Preprocessing.get_matching_movies(ratings, movies)
+
+
+# CONTENT-BASED FILTERING
 
 pass
 
@@ -39,18 +48,16 @@ st.markdown(
     """
 )
 
-input_list = st.multiselect(
+## INPUT HANDLING
+
+input_titles = st.multiselect(
     "Choose your favorite movies:",
     movies["title"]
 )
-
-if input_list == False:
-#     st.write("")
-# else:
-    st.write("Please select at least one movie.")
+input_ids = [id for id in movies[movies["title"].isin(input_titles)]["movie_id"]]
 
 
-## RECOMMENDATIONS
+## GIVING RECOMMENDATIONS
 
 pass
 
