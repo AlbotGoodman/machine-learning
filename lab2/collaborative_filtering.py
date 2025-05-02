@@ -122,7 +122,7 @@ class Modelling:
 
 
     def __init__(self):
-        self.user_mapper_reverse = None
+        self.movie_mapper = None
         self.movie_mapper_reverse = None
         self.user_movie_matrix = None
         self.model = None
@@ -146,13 +146,12 @@ class Modelling:
 
         # Creates a dictionary with an index for each user and movie - or reversed
         user_mapper = {user: i for i, user in enumerate(unique_users)}
-        movie_mapper = {movie: i for i, movie in enumerate(unique_movies)}
-        self.user_mapper_reverse = {i: user for i, user in enumerate(unique_users)}
+        self.movie_mapper = {movie: i for i, movie in enumerate(unique_movies)}
         self.movie_mapper_reverse = {i: movie for i, movie in enumerate(unique_movies)}
 
         # Map original IDs to indices (will need to be reversed later)
         rows = np.array([user_mapper[user] for user in df["user_id"]])
-        cols = np.array([movie_mapper[movie] for movie in df["movie_id"]])
+        cols = np.array([self.movie_mapper[movie] for movie in df["movie_id"]])
         vals = df["rating"].values
         self.user_movie_matrix = csr_matrix((vals, (rows, cols)), shape=(len(unique_users), len(unique_movies)))
 
@@ -181,22 +180,38 @@ class Recommending:
 
     def __init__(self, model, movies_df):
         self.model = model
-        self.user_movie_matrix = model.user_movie_matrix
-        self.W = model.W
         self.H = model.H
-        self.user_mapper_reverse = model.user_mapper_reverse
+        self.movie_mapper = model.movie_mapper
         self.movie_mapper_reverse = model.movie_mapper_reverse
         self.movies = movies_df
 
 
-    def get_recommendations(self, input, n_recommendations=5):
+    def get_recommendations(self, input_movies, n_recs=5):
         """
         Provides movie recommendations based on the input movie titles.
         
         Arguments:
         input -- List of movie IDs
-        n_recommendations -- Number of recommendations to return
+        n_recs -- Number of recommendations to return
 
         Returns:
-        recommendations -- DataFrame with recommended movie titles
+        recommendations -- DataFrame with movie IDs, titles and similarity scores
         """
+        input_indices = [self.movie_mapper[movie] for movie in input_movies]
+        input_matrix = self.H[:, input_indices].transpose()  # shape: (n_input_movies, n_factors)
+        similarity_scores = cosine_similarity(input_matrix, self.H.T)  # shape: (n_input_movies, n_all_movies)
+
+        # Find the highest similarity score for each candidate movie
+        similarity_scores = np.max(similarity_scores, axis=0)  # shape: (n_all_movies, )
+        similarity_scores[input_indices] = 0
+
+        # Sort the scores without affecting the order
+        sorted_scores = np.sort(similarity_scores)[::-1]
+        sorted_indices = np.argsort(similarity_scores)[::-1]
+        sorted_movies = [self.movie_mapper_reverse[idx] for idx in sorted_indices]
+        movie_titles = [title for id in sorted_movies[:n_recs] for title in self.movies[self.movies["movie_id"] == id]["title"].values]
+        top_movies = [(movie, title, score) for movie, title, score in zip(sorted_movies, movie_titles, sorted_scores)][:n_recs]
+        top_df = pd.DataFrame(top_movies, columns=["movie_id", "title", "score"])
+        top_df = top_df.sort_values("score", ascending=False)
+
+        return top_df

@@ -32,6 +32,16 @@ pipeline = collab.Preprocessing()
 ratings = pipeline.filter_scaler(ratings)
 movies = collab.Preprocessing.get_matching_movies(ratings, movies)
 
+## MODEL CREATION
+
+pass
+
+## RECOMMENDATIONS
+
+collab_recommendations = collab.Recommending.get_recommendations([152081, 134853, 6377], 10)
+st.write("**Collaborative filtering recommendations:**")
+st.dataframe(collab_recommendations)
+
 
 # CONTENT-BASED FILTERING
 
