@@ -62,7 +62,7 @@ Andrew:
  
  # TO DO
 
- 1. cap movies and users
+ 1. make functions of everything
  2. save a useful model with joblib
  3. create a recommendation function
  4. combine collab with content
