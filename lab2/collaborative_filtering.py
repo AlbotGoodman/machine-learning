@@ -87,7 +87,7 @@ class Preprocessing:
         return pd.concat(df_collection)
     
 
-    def filter_scaler(self, df):
+    def pipeline(self, df):
         """
         A pipeline for preprocessing the ratings DataFrame.
 

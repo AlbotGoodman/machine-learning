@@ -28,8 +28,8 @@ ratings, movies, tags = load_data()
 
 ## DATA PREPROCESSING
 
-pipeline = cf.Preprocessing()
-ratings = pipeline.filter_scaler(ratings)
+preprocessor = cf.Preprocessing()
+ratings = preprocessor.pipeline(ratings)
 movies = cf.Preprocessing.get_matching_movies(ratings, movies)
 
 
