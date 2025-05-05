@@ -216,3 +216,32 @@ class Recommending:
         top_df = top_df.sort_values("score", ascending=False)
 
         return top_df
+    
+
+def main():
+
+    # Load data
+    ratings = pd.read_csv("../data/movielens/ratings.csv", usecols=["user_id", "movie_id", "rating"])
+    movies = pd.read_csv("../data/movielens/movies.csv")
+    
+    # Preprocess data
+    preprocessor = Preprocessing()
+    ratings = preprocessor.pipeline(ratings)
+    movies = Preprocessing.get_matching_movies(ratings, movies)
+    joblib.dump(ratings, "joblib/collab/ratings_processed.joblib")
+    joblib.dump(movies, "joblib/collab/movies_processed.joblib")
+    
+    # Create model
+    collab_model = Modelling()
+    collab_model.create_user_movie_matrix(ratings)
+    collab_model.create_nmf_model()
+    joblib.dump(collab_model, "joblib/collab/nmf_150.joblib")
+    
+    # Create recommendations
+    collab_rec = Recommending(collab_model, movies)
+    recommendations = collab_rec.get_recommendations([152081, 134853, 6377], 10)
+    print(recommendations)
+
+
+if __name__ == "__main__":
+    main()

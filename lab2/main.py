@@ -1,10 +1,11 @@
 # DEPENDENCIES
 
 import streamlit as st
-import collaborative_filtering as cf
-# from content_based_filtering import *
+from collaborative_filtering import Recommending as CFRecommending
+from content_based_filtering import Recommending as CBFRecommending
 import pandas as pd
 import numpy as np
+import joblib
 st.set_page_config(page_title="AsMR")
 
 
@@ -12,45 +13,32 @@ st.set_page_config(page_title="AsMR")
 
 @st.cache_data
 def load_data():
-    """
-    Load data from CSV files and return DataFrames.
-    """
-    ratings = pd.read_csv("../data/movielens/ratings.csv", usecols=["user_id", "movie_id", "rating"])
-    movies = pd.read_csv("../data/movielens/movies.csv")
-    tags = pd.read_csv("../data/movielens/tags.csv", usecols=["user_id", "movie_id", "tag"])
-    return ratings, movies, tags
+    return pd.read_csv("../data/movielens/movies.csv")
 
 
-ratings, movies, tags = load_data()
+movies = load_data()
 
 
 # COLLABORATIVE FILTERING
 
-## DATA PREPROCESSING
-
-preprocessor = cf.Preprocessing()
-ratings = preprocessor.pipeline(ratings)
-movies = cf.Preprocessing.get_matching_movies(ratings, movies)
+@st.cache_resource
+def load_collab():
+    return joblib.load("joblib/collab/nmf_150.joblib")
 
 
-## MODEL CREATION
-
-collab_model = cf.Modelling()
-collab_model.create_user_movie_matrix(ratings)
-collab_model.create_nmf_model()
-
-
-## RECOMMENDATIONS
-
-collab_rec = cf.Recommending(collab_model, movies)
-collab_recommendations = collab_rec.get_recommendations([152081, 134853, 6377], 10)
-st.write("**Collaborative filtering recommendations:**")
-st.dataframe(collab_recommendations)
+cf_model = load_collab()
+cf_recommender = CFRecommending(cf_model, movies)
 
 
 # CONTENT-BASED FILTERING
 
-pass
+@st.cache_resource
+def load_content():
+    return joblib.load("joblib/content/lsa_950.joblib")
+
+
+cbf_model = load_content()
+cbf_recommender = CBFRecommending(cbf_model, movies)
 
 
 # STREAMLIT APP
@@ -63,7 +51,7 @@ st.markdown(
     """
 )
 
-## INPUT HANDLING
+## INPUT
 
 input_titles = st.multiselect(
     "Choose your favorite movies:",
@@ -72,9 +60,27 @@ input_titles = st.multiselect(
 input_ids = [id for id in movies[movies["title"].isin(input_titles)]["movie_id"]]
 
 
-## GIVING RECOMMENDATIONS
+## RECOMMENDATIONS
 
-pass
+if "recommendations_given" not in st.session_state:
+    st.session_state.recommendations_given = False
+
+if st.button("Make my day"):
+    
+    try:
+        cf_recommendations = cf_recommender.get_recommendations(input_ids, 10)
+        cbf_recommendations = cbf_recommender.get_recommendations(input_ids, 10)
+
+        st.write("**Collaborative filtering recommendations:**")
+        st.dataframe(cf_recommendations)
+
+        st.write("**Content-based filtering recommendations:**")
+        st.dataframe(cbf_recommendations)
+
+        st.session_state.recommendations_given = True
+
+    except ValueError:
+        st.warning("Please select at least one movie.")
 
 
 ## ASKING FOR VALIDATION
@@ -96,13 +102,15 @@ hate_responses = [
     "You talkin' to me?"
 ]
 
-st.write("**Did you like my recommendations?**")
-left, right = st.columns(2)
+if st.session_state.recommendations_given:
 
-if left.button("For sure.", use_container_width=True):
-    seed = np.random.randint(0, len(like_responses))
-    left.write(f"{like_responses[seed]}")
+    st.write("**Did you like my recommendations?**")
+    left, right = st.columns(2)
 
-if right.button("Hell no!", use_container_width=True):
-    seed = np.random.randint(0, len(hate_responses))
-    right.write(f"{hate_responses[seed]}")
+    if left.button("For sure.", use_container_width=True):
+        seed = np.random.randint(0, len(like_responses))
+        left.write(f"{like_responses[seed]}")
+
+    if right.button("Hell no!", use_container_width=True):
+        seed = np.random.randint(0, len(hate_responses))
+        right.write(f"{hate_responses[seed]}")

@@ -189,7 +189,7 @@ class Modelling:
         self -- updates instance variables
         """
 
-        lsa = TruncatedSVD(n_components=250)
+        lsa = TruncatedSVD(n_components=950)
         self.lsa_matrix = lsa.fit_transform(self.tfidf_matrix)
 
         return self
@@ -267,12 +267,12 @@ def main():
 
     # Preprocess data
     preprocessor = Preprocessing()
-    movies_processed = preprocessor.pipeline_processing(movies, tags)
-    joblib.dump(movies, "joblib/content/movies_processed.joblib")
+    semantics = preprocessor.pipeline_processing(movies, tags)
+    joblib.dump(movies, "joblib/content/semantics.joblib")
 
     # Create model
     content_model = Modelling()
-    content_model.create_tfidf_matrix(movies_processed)
+    content_model.create_tfidf_matrix(semantics)
     content_model.create_lsa_model()
     joblib.dump(content_model, "joblib/content/lsa_250.joblib")
 
