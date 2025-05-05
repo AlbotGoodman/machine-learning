@@ -198,17 +198,19 @@ class Recommending:
         recommendations -- DataFrame with movie IDs, titles and similarity scores
         """
         input_indices = [self.movie_mapper[movie] for movie in input_movies]
-        input_matrix = self.H[:, input_indices].transpose()  # shape: (n_input_movies, n_factors)
-        similarity_scores = cosine_similarity(input_matrix, self.H.T)  # shape: (n_input_movies, n_all_movies)
+        input_matrix = self.H[:, input_indices].transpose()
+        similarity_scores = cosine_similarity(input_matrix, self.H.T)
 
         # Find the highest similarity score for each candidate movie
-        similarity_scores = np.max(similarity_scores, axis=0)  # shape: (n_all_movies, )
+        similarity_scores = np.max(similarity_scores, axis=0)
         similarity_scores[input_indices] = 0
 
         # Sort the scores without affecting the order
         sorted_scores = np.sort(similarity_scores)[::-1]
         sorted_indices = np.argsort(similarity_scores)[::-1]
         sorted_movies = [self.movie_mapper_reverse[idx] for idx in sorted_indices]
+
+        # Translate IDs to titles and create a DataFrame
         movie_titles = [title for id in sorted_movies[:n_recs] for title in self.movies[self.movies["movie_id"] == id]["title"].values]
         top_movies = [(movie, title, score) for movie, title, score in zip(sorted_movies, movie_titles, sorted_scores)][:n_recs]
         top_df = pd.DataFrame(top_movies, columns=["movie_id", "title", "score"])
