@@ -158,7 +158,7 @@ class Modelling:
         return self
 
 
-    def train_model(self):
+    def create_nmf_model(self):
         """
         Trains a model based on MiniBatchNMF using set parameters found during explorative data analysis.
 
@@ -179,7 +179,6 @@ class Recommending:
 
 
     def __init__(self, model, movies_df):
-        self.model = model
         self.H = model.H
         self.movie_mapper = model.movie_mapper
         self.movie_mapper_reverse = model.movie_mapper_reverse

@@ -1,7 +1,7 @@
 # DEPENDENCIES
 
 import streamlit as st
-import collaborative_filtering as collab
+import collaborative_filtering as cf
 # from content_based_filtering import *
 import pandas as pd
 import numpy as np
@@ -28,17 +28,22 @@ ratings, movies, tags = load_data()
 
 ## DATA PREPROCESSING
 
-pipeline = collab.Preprocessing()
+pipeline = cf.Preprocessing()
 ratings = pipeline.filter_scaler(ratings)
-movies = collab.Preprocessing.get_matching_movies(ratings, movies)
+movies = cf.Preprocessing.get_matching_movies(ratings, movies)
+
 
 ## MODEL CREATION
 
-pass
+collab_model = cf.Modelling()
+collab_model.create_user_movie_matrix(ratings)
+collab_model.create_nmf_model()
+
 
 ## RECOMMENDATIONS
 
-collab_recommendations = collab.Recommending.get_recommendations([152081, 134853, 6377], 10)
+collab_rec = cf.Recommending(collab_model, movies)
+collab_recommendations = collab_rec.get_recommendations([152081, 134853, 6377], 10)
 st.write("**Collaborative filtering recommendations:**")
 st.dataframe(collab_recommendations)
 
