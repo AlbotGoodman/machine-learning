@@ -3,7 +3,6 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from sklearn.decomposition import MiniBatchNMF
 from sklearn.metrics.pairwise import cosine_similarity
-import joblib
 
 
 class Preprocessing:
@@ -50,7 +49,7 @@ class Preprocessing:
             outliers_collection.append(col_df_capped)
         outliers_capped = pd.concat(outliers_collection)
 
-        # Remove whale data and insert the sampled whale data
+        # Remove outlier data and insert the sampled outlier data
         filtered_ratings = filtered_ratings[filtered_ratings[col].isin(outliers_list) == False]
         filtered_ratings = pd.concat([filtered_ratings, outliers_capped], ignore_index=True)
 
@@ -141,6 +140,13 @@ class Modelling:
         self -- updates instance variables
         """
         
+        # Creating a user-movie matrix using pivot_table() crashes the kernel due to the size of the data. 
+        # I tried creating a sparse matrix (see line below) with user_id, movie_id and rating as rows, columns and values but that resulted in a much larger matrix than users * movies. 
+        # sparse_matrix = coo_matrix((ratings["rating"], (ratings["user_id"], ratings["movie_id"])))
+        # From my understanding the issue is that the IDs are not contiguous (0, 1, 2, 3 ...) resulting in a shape of max_user_ID * max_movie_ID.
+        # I asked Claude Sonnet 3.7 to: "Modify the code to create a sparse matrix in the shape of users*movies."
+        # That resulted in using unique values and creating dictionaries of IDs and indices.
+
         unique_users = np.sort(df["user_id"].unique())
         unique_movies = np.sort(df["movie_id"].unique())
 

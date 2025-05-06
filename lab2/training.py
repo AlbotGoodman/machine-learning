@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import joblib
+import os
 from collaborative_filtering import (Preprocessing as CFPreprocessing, 
                                     Modelling as CFModelling, 
                                     Recommending as CFRecommending)
@@ -31,6 +32,8 @@ cbf_model.create_tfidf_matrix(semantics)
 cbf_model.create_lsa_model()
 
 # Save variables
+os.makedirs("joblib/collab", exist_ok=True)
+os.makedirs("joblib/content", exist_ok=True)
 joblib.dump(cf_model, "joblib/collab/nmf_150.joblib")
 joblib.dump(semantics, "joblib/content/semantics.joblib")
 joblib.dump(cbf_model, "joblib/content/lsa_950.joblib")

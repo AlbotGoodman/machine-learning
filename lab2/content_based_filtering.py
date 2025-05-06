@@ -7,7 +7,6 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 from sklearn.metrics.pairwise import cosine_similarity
-import joblib
 
 
 class Preprocessing:
@@ -268,13 +267,11 @@ def main():
     # Preprocess data
     preprocessor = Preprocessing()
     semantics = preprocessor.pipeline_processing(movies, tags)
-    joblib.dump(movies, "joblib/content/semantics.joblib")
 
     # Create model
     content_model = Modelling()
     content_model.create_tfidf_matrix(semantics)
     content_model.create_lsa_model()
-    joblib.dump(content_model, "joblib/content/lsa_250.joblib")
 
     # Provide recommendations
     content_rec = Recommending(content_model, movies)
